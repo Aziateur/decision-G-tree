@@ -13,9 +13,7 @@
 <body>
     <div id="root">Loading...</div>
 
-    <script>
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', function() {
+
             const e = React.createElement;
 
             const App = () => {
