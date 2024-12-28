@@ -1,7 +1,6 @@
 const e = React.createElement;
 
 const App = () => {
-    // Initial state
     const [parameters, setParameters] = React.useState([{
         id: '1',
         name: 'Energy Level',
@@ -27,7 +26,6 @@ const App = () => {
 
     const [isEditing, setIsEditing] = React.useState(false);
 
-    // Core functions
     const calculateParentScore = (subParams) => {
         if (!subParams?.length) return 0;
         let totalScore = 0, totalWeight = 0;
@@ -36,19 +34,6 @@ const App = () => {
             totalWeight += sub.weight;
         });
         return totalWeight > 0 ? Math.round((totalScore / totalWeight) * 10) / 10 : 0;
-    };
-
-    // Action handlers
-    const addParameter = () => {
-        const newParam = {
-            id: Date.now().toString(),
-            name: 'New Parameter',
-            threshold: 3,
-            instruction: '',
-            category: 'Other',
-            subParameters: []
-        };
-        setParameters(prev => [...prev, newParam]);
     };
 
     const addSubParameter = (parentId) => {
@@ -84,91 +69,86 @@ const App = () => {
         }));
     };
 
-    // Main render
-    return e('div', { className: 'max-w-4xl mx-auto p-4' }, [
+    return e('div', { className: 'container mx-auto p-4 max-w-3xl' }, [
         // Header
-        e('div', { className: 'mb-4 flex justify-between items-center', key: 'header' }, [
-            e('h2', { className: 'text-xl font-bold' }, 'Break Decision System'),
+        e('div', { className: 'flex justify-between items-center mb-8' }, [
+            e('h1', { className: 'text-4xl font-bold' }, 'Break Decision System'),
             e('button', {
                 onClick: () => setIsEditing(!isEditing),
-                className: 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
+                className: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
             }, isEditing ? 'Done' : 'Edit')
         ]),
 
-        // Parameters list
+        // Parameters
         ...parameters.map(param => 
             e('div', { 
-                key: param.id, 
-                className: 'mb-4 border rounded-lg p-6 bg-white shadow-sm'
+                key: param.id,
+                className: 'bg-white rounded-lg shadow-md p-6 mb-6'
             }, [
-                e('div', { className: 'flex justify-between' }, [
+                // Parameter Header
+                e('div', { className: 'flex justify-between items-center mb-4' }, [
                     e('div', null, [
-                        e('span', { className: 'font-bold' }, param.name),
-                        e('span', { className: 'ml-2 text-gray-600' }, 
+                        e('h2', { className: 'text-xl font-semibold' }, param.name),
+                        e('div', { className: 'text-gray-600 mt-1' }, 
                             `Score: ${calculateParentScore(param.subParameters)}`
                         )
-                    ]),
-                    isEditing && e('button', {
-                        onClick: () => addSubParameter(param.id),
-                        className: 'px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600'
-                    }, 'Add Sub-Parameter')
+                    ])
                 ]),
-                e('div', { className: 'mt-4' }, 
+
+                // Sub Parameters
+                e('div', { className: 'space-y-4' },
                     param.subParameters.map(sub =>
                         e('div', { 
-                            key: sub.id, 
-                            className: 'mb-2 p-2 border rounded bg-gray-50'
-                        },
-                            isEditing ? [
+                            key: sub.id,
+                            className: 'p-4 bg-gray-50 rounded-lg'
+                        }, 
+                            isEditing ?
+                            e('div', { className: 'space-y-3' }, [
                                 e('input', {
-                                    key: 'name-input',
                                     type: 'text',
                                     value: sub.name,
                                     onChange: (e) => updateSubParameter(param.id, sub.id, 'name', e.target.value),
-                                    className: 'w-full p-1 mb-2 border rounded'
+                                    className: 'w-full p-2 border rounded'
                                 }),
-                                e('div', { key: 'input-group', className: 'flex gap-2' }, [
+                                e('div', { className: 'flex gap-4' }, [
                                     e('input', {
                                         type: 'number',
                                         value: sub.weight,
                                         onChange: (e) => updateSubParameter(param.id, sub.id, 'weight', e.target.value),
-                                        className: 'w-20 p-1 border rounded',
-                                        placeholder: 'Weight'
+                                        className: 'w-24 p-2 border rounded',
+                                        min: '0',
+                                        max: '100'
                                     }),
                                     e('input', {
                                         type: 'text',
                                         value: sub.instruction,
                                         onChange: (e) => updateSubParameter(param.id, sub.id, 'instruction', e.target.value),
-                                        className: 'flex-1 p-1 border rounded',
-                                        placeholder: 'Instruction'
+                                        className: 'flex-1 p-2 border rounded',
+                                        placeholder: 'Instructions'
                                     })
                                 ])
-                            ] : [
-                                e('div', { 
-                                    key: 'view-mode',
-                                    className: 'flex justify-between items-center'
-                                }, [
-                                    e('span', null, `${sub.name} (${sub.weight}%)`),
-                                    e('select', {
-                                        value: sub.score,
-                                        onChange: (e) => updateSubParameter(param.id, sub.id, 'score', e.target.value),
-                                        className: 'p-1 border rounded'
-                                    }, [1,2,3,4,5].map(n => 
-                                        e('option', { key: n, value: n }, n)
-                                    ))
-                                ])
-                            ]
+                            ]) :
+                            e('div', { className: 'flex justify-between items-center' }, [
+                                e('span', { className: 'text-lg' }, `${sub.name} (${sub.weight}%)`),
+                                e('select', {
+                                    value: sub.score,
+                                    onChange: (e) => updateSubParameter(param.id, sub.id, 'score', e.target.value),
+                                    className: 'ml-4 p-2 border rounded bg-white'
+                                }, [1,2,3,4,5].map(n => 
+                                    e('option', { key: n, value: n }, n)
+                                ))
+                            ])
                         )
                     )
-                )
-            ])
-        ),
+                ),
 
-        // Add Parameter button (only shown in edit mode)
-        isEditing && e('button', {
-            onClick: addParameter,
-            className: 'mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600'
-        }, 'Add Parameter')
+                // Add Sub-Parameter Button
+                isEditing && e('button', {
+                    onClick: () => addSubParameter(param.id),
+                    className: 'mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full'
+                }, 'Add Sub-Parameter')
+            ])
+        )
     ]);
 };
 
