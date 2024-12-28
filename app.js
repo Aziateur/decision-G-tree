@@ -28,20 +28,12 @@ const App = () => {
 
     const calculateParentScore = (subParams) => {
         if (!subParams?.length) return 0;
-        let weightedScore = 0;
-        let totalWeight = subParams.reduce((sum, sub) => sum + sub.weight, 0);
-      const calculateParentScore = (subParams) => {
-        if (!subParams?.length) return 0;
-        const totalWeight = subParams.reduce((sum, sub) => sum + Number(sub.weight), 0);
-        if (totalWeight === 0) return 0;
-        
-        const weightedScore = subParams.reduce((sum, sub) => {
-            const weight = Number(sub.weight);
-            const score = Number(sub.score);
-            return sum + (score * weight / totalWeight);
-        }, 0);
-        
-        return Math.round(weightedScore * 10) / 10;
+        let totalScore = 0, totalWeight = 0;
+        subParams.forEach(sub => {
+            totalScore += (sub.score * sub.weight);
+            totalWeight += sub.weight;
+        });
+        return totalWeight > 0 ? Math.round((totalScore / totalWeight) * 10) / 10 : 0;
     };
 
     const addParameter = () => {
@@ -95,51 +87,13 @@ const App = () => {
     const updateSubParameter = (parentId, subId, field, value) => {
         setParameters(prev => prev.map(param => {
             if (param.id === parentId) {
-                const updatedSubParams = param.subParameters.map(sub => {
-                    if (sub.id === subId) {
-                        let parsedValue = value;
-                        if (field === 'score' || field === 'threshold') {
-                            parsedValue = Math.min(5, Math.max(1, parseInt(value) || 1));
-                        } else if (field === 'weight') {
-                            parsedValue = Math.max(0, parseInt(value) || 0);
-                        }
-                        return { ...sub, [field]: parsedValue };
-                    }
-                    return sub;
-                });
-                return { ...param, subParameters: updatedSubParams };
-            }
-            return param;
-        }));
-    };
-    };
-
-    const addSubParameter = (parentId) => {
-        setParameters(prev => prev.map(param => {
-            if (param.id === parentId) {
-                return {
-                    ...param,
-                    subParameters: [...param.subParameters, {
-                        id: `${parentId}-${Date.now()}`,
-                        name: 'New Sub-Parameter',
-                        score: 5,
-                        weight: 50,
-                        threshold: 3,
-                        instruction: ''
-                    }]
-                };
-            }
-            return param;
-        }));
-    };
-
-    const updateSubParameter = (parentId, subId, field, value) => {
-        setParameters(prev => prev.map(param => {
-            if (param.id === parentId) {
                 return {
                     ...param,
                     subParameters: param.subParameters.map(sub =>
-                        sub.id === subId ? { ...sub, [field]: field === 'score' || field === 'threshold' ? parseInt(value) : value } : sub
+                        sub.id === subId ? { 
+                            ...sub, 
+                            [field]: ['score', 'threshold', 'weight'].includes(field) ? parseInt(value) || 0 : value 
+                        } : sub
                     )
                 };
             }
