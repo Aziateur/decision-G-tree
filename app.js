@@ -60,8 +60,7 @@ const App = () => {
         }]);
     };
 
-    const deleteParameter = (id) => {
-        setParameters(prev => prev.filter(param => param.id !== id));
+sub.id === subId ? { ...sub, [field]: ['score', 'threshold', 'weight'].includes(field) ? parseInt(value) : value } : sub        setParameters(prev => prev.filter(param => param.id !== id));
     };
 
     const updateParameterName = (id, newName) => {
