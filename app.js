@@ -96,6 +96,12 @@ const App = () => {
     }));
   };
 
+  const updateParameter = (id, field, value) => {
+    setParameters(prev => prev.map(param =>
+      param.id === id ? { ...param, [field]: value } : param
+    ));
+  };
+
   const updateSubParameter = (parentId, subId, field, value) => {
     setParameters(prev => prev.map(param => {
       if (param.id === parentId) {
@@ -169,7 +175,17 @@ const App = () => {
                   {expandedParams[param.id] ? '▼' : '►'}
                 </button>
                 <div>
-                  <span className="font-bold">{param.name}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={param.name}
+                      onChange={(e) => updateParameter(param.id, 'name', e.target.value)}
+                      className="w-full p-2 border rounded font-bold"
+                      placeholder="Parameter Name"
+                    />
+                  ) : (
+                    <span className="font-bold">{param.name}</span>
+                  )}
                   <span className="text-gray-500 ml-2">({param.category})</span>
                   <span className="ml-4 font-bold">
                     Score: {calculateParentScore(param.subParameters)}
@@ -311,6 +327,9 @@ const App = () => {
       </div>
     </div>
   );
+};
+
+export default App;
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));
