@@ -1,3 +1,4 @@
+// Make sure this is the first line
 const e = React.createElement;
 
 const App = () => {
@@ -28,12 +29,17 @@ const App = () => {
 
     const calculateParentScore = (subParams) => {
         if (!subParams?.length) return 0;
-        let totalScore = 0, totalWeight = 0;
+        let weightedScore = 0;
+        let totalWeight = subParams.reduce((sum, sub) => sum + sub.weight, 0);
+        
+        if (totalWeight === 0) return 0;
+        
         subParams.forEach(sub => {
-            totalScore += (sub.score * sub.weight);
-            totalWeight += sub.weight;
+            const weightPercentage = sub.weight / totalWeight;
+            weightedScore += sub.score * weightPercentage;
         });
-        return totalWeight > 0 ? Math.round((totalScore / totalWeight) * 10) / 10 : 0;
+        
+        return Math.round(weightedScore * 10) / 10;
     };
 
     const addParameter = () => {
@@ -48,7 +54,7 @@ const App = () => {
                 id: `${newId}-1`,
                 name: 'New Sub-Parameter',
                 score: 5,
-                weight: 100,
+                weight: 50,
                 threshold: 3,
                 instruction: ''
             }]
