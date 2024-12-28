@@ -1,7 +1,8 @@
+// Main App Component
 const e = React.createElement;
 
 const App = () => {
-    // Initial state
+    // Initial state using React.useState
     const [parameters, setParameters] = React.useState([{
         id: '1',
         name: 'Energy Level',
@@ -26,7 +27,6 @@ const App = () => {
     }]);
 
     const [isEditing, setIsEditing] = React.useState(false);
-    const [expandedParams, setExpandedParams] = React.useState({});
 
     // Save/Load from localStorage
     React.useEffect(() => {
@@ -40,7 +40,7 @@ const App = () => {
 
     // Core functions
     const calculateParentScore = (subParams) => {
-        if (!subParams.length) return 0;
+        if (!subParams?.length) return 0;
         let totalScore = 0, totalWeight = 0;
         subParams.forEach(sub => {
             totalScore += (sub.score * sub.weight);
@@ -95,20 +95,22 @@ const App = () => {
         }));
     };
 
-    // Main render
     return e('div', { className: 'max-w-4xl mx-auto p-4' }, [
         // Header
         e('div', { className: 'mb-4 flex justify-between items-center', key: 'header' }, [
             e('h2', { className: 'text-xl font-bold' }, 'Break Decision System'),
             e('button', {
                 onClick: () => setIsEditing(!isEditing),
-                className: 'px-4 py-2 bg-blue-500 text-white rounded'
+                className: 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
             }, isEditing ? 'Done' : 'Edit')
         ]),
 
-        // Parameters
+        // Parameters list
         ...parameters.map(param => 
-            e('div', { key: param.id, className: 'parameter-card' }, [
+            e('div', { 
+                key: param.id, 
+                className: 'mb-4 border rounded-lg p-6 bg-white shadow-sm'
+            }, [
                 e('div', { className: 'flex justify-between' }, [
                     e('div', null, [
                         e('span', { className: 'font-bold' }, param.name),
@@ -118,20 +120,24 @@ const App = () => {
                     ]),
                     isEditing && e('button', {
                         onClick: () => addSubParameter(param.id),
-                        className: 'px-2 py-1 bg-green-500 text-white rounded'
+                        className: 'px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600'
                     }, 'Add Sub-Parameter')
                 ]),
                 e('div', { className: 'mt-4' }, 
                     param.subParameters.map(sub =>
-                        e('div', { key: sub.id, className: 'mb-2 p-2 border rounded' },
+                        e('div', { 
+                            key: sub.id, 
+                            className: 'mb-2 p-2 border rounded bg-gray-50'
+                        },
                             isEditing ? [
                                 e('input', {
+                                    key: 'name-input',
                                     type: 'text',
                                     value: sub.name,
                                     onChange: (e) => updateSubParameter(param.id, sub.id, 'name', e.target.value),
                                     className: 'w-full p-1 mb-2 border rounded'
                                 }),
-                                e('div', { className: 'flex gap-2' }, [
+                                e('div', { key: 'input-group', className: 'flex gap-2' }, [
                                     e('input', {
                                         type: 'number',
                                         value: sub.weight,
@@ -148,7 +154,10 @@ const App = () => {
                                     })
                                 ])
                             ] : [
-                                e('div', { className: 'flex justify-between' }, [
+                                e('div', { 
+                                    key: 'view-mode',
+                                    className: 'flex justify-between items-center'
+                                }, [
                                     e('span', null, `${sub.name} (${sub.weight}%)`),
                                     e('select', {
                                         value: sub.score,
@@ -163,9 +172,15 @@ const App = () => {
                     )
                 )
             ])
-        )
+        ),
+
+        // Add Parameter button (only shown in edit mode)
+        isEditing && e('button', {
+            onClick: addParameter,
+            className: 'mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600'
+        }, 'Add Parameter')
     ]);
 };
 
-// Initial render
+// Initialize the app
 ReactDOM.render(e(App), document.getElementById('root'));
